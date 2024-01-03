@@ -1,0 +1,68 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camera Access</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        #video-container {
+            display: none;
+        }
+
+        #capture-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <button id="capture-button" onclick="startCamera()">Capture Photo</button>
+    <div id="video-container">
+        <video id="video" width="400" height="300" autoplay></video>
+        <canvas id="canvas" width="400" height="300"></canvas>
+    </div>
+
+    <script>
+        async function startCamera() {
+            const videoContainer = document.getElementById('video-container');
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            const captureButton = document.getElementById('capture-button');
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+                video.play();
+                videoContainer.style.display = 'block';
+                captureButton.style.display = 'none';
+
+                // Capture photo on button click
+                captureButton.onclick = function () {
+                    canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+                    // Do something with the captured image (e.g., send to server, display on the page)
+                    // For example, you can convert it to a data URL and log it to the console:
+                    const imageDataURL = canvas.toDataURL('image/png');
+                    console.log(imageDataURL);
+
+                    // Stop the video stream
+                    stream.getVideoTracks()[0].stop();
+                    videoContainer.style.display = 'none';
+                    captureButton.style.display = 'block';
+                };
+            } catch (error) {
+                console.error('Error accessing the camera: ', error);
+            }
+        }
+    </script>
+</body>
+</html>
